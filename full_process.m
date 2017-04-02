@@ -1,19 +1,8 @@
-function full_process(tm,sig,tm2,sig_denoise_paper)
-    
+function [x, sample] = full_process(tm,sig,tm2,sig_denoise_paper)
     N = 9; 
     Fs = 500; 
     %% Baseline Removal through Polyfit
-    % Below are the different filters attempted: (FOR REPORT DON'T DELETE)
-    % sig2 = cmddenoise(sig, 'db8', 9); 
-    % [c,l] = wavedec(sig,9,'db8');
-    % cd9 = waverec(c,l,'db8'); 
-    % a0 = waverec(c,l,'db8');
-    % fc_hp = 0.35;
-    % [b_hp,a_hp] = butter(6,fc_hp/(Fs/2),'high');
-    % sig2 = filtfilt(b_hp,a_hp,sig); 
-    % This one performed the best!
-    opol = 12;
-    [p,s,mu] = polyfit(tm,sig,opol);
+    [p,s,mu] = polyfit(tm,sig,12);
     f_y = polyval(p,tm,[],mu);
     sig2 = sig - f_y;
 
@@ -42,58 +31,41 @@ function full_process(tm,sig,tm2,sig_denoise_paper)
 
     %% Smoothing Filter as per Paper
     sig5 = smooth(sig4,5); 
-
-    % figure;
-    % ax1 = subplot(2,1,1); 
-    % plot(tm, sig); hold on; grid on;
-    % plot(tm, sig5); 
-    % ax2 = subplot(2,1,2);
-    % plot(tm, sig5, 'r'); hold on; grid on; 
-    % plot(tm2, sig_denoise_paper); 
-    % 
-    % linkaxes([ax1, ax2], 'x'); 
-    % legend('Our De-Noised',' Paper De-Noised'); 
-
+    
+    sig_denoised = sig5; 
+%     figure;
+%     ax1 = subplot(2,1,1); 
+%     plot(tm, sig); hold on; grid on;
+%     plot(tm, sig5); 
+%     ax2 = subplot(2,1,2);
+%     plot(tm, sig5, 'r'); hold on; grid on; 
+%     plot(tm2, sig_denoise_paper); 
+%     
+%     linkaxes([ax1, ax2], 'x'); 
+%     legend('Our De-Noised',' Paper De-Noised'); 
+    clear sig2 sig3 sig4 sig5
     %% Feature Space
+    peak_threshold = max(sig_denoised)*0.65; 
     % get the peak value and the peak location of R
-    [pk,in] = findpeaks(sig_denoise_paper, 'MinPeakHeight',0.35);
+    [pk,in] = findpeaks(sig_denoised, 'MinPeakHeight',peak_threshold);
     %Matlab 2014 has an error with findpeaks
-    lk = tm2(in);
+    lk = tm(in);
 
     %plot the R peaks
-    % figure;
-    % plot(tm2, sig_denoise_paper, lk, pk, 'ro');
-
-    %Find Q point, this isn't a very good way to do it, I just used the R peak
-    %as a refernce then I just went 30 samples back. The original signal was
-    %too noises so matlabs findpeaks function was not reliable
-    lk2 = tm2(in-30);
-    pk2 = sig_denoise_paper(in-30);
-
-    % [pk2,min_locs] = findpeaks(-sig_denoise_paper,'MinPeakDistance',90);
-    % min_locs = tm2(min_locs);
-    % for i = 1:length(pk2)
-    %     if pk2(i)>0.09 || pk2(i)< 0.05 
-    %         pk2(i) = 0;
-    %         min_locs(i) = 0;
-    %     end
-    % end
-
-    %plot the Q peaks
-    % figure;
-    % plot(tm2, sig_denoise_paper, lk2, pk2, 'ro');
+%     figure;
+%     plot(tm, sig_denoised, lk, pk, 'ro');
 
     % chop the signal into samples
     sample = zeros(250,length(lk));
 
     % get just the peak indices
-    [pk,lk] = findpeaks(sig_denoise_paper, 'MinPeakHeight',0.35);
-    for i = 1:length(lk)
+    [pk,lk] = findpeaks(sig_denoised, 'MinPeakHeight',peak_threshold);
+    for i = 2:length(lk) % Skip first
         % check if the sample we're taking exceeds the length of the signal
-        if lk(i) + 169 > length(sig_denoise_paper)
-            sample(1:(length(sig_denoise_paper) - lk(i) + 81),i) = sig_denoise_paper((lk(i) - 80):length(sig_denoise_paper));
+        if lk(i) + 169 > length(sig_denoised)
+            sample(1:(length(sig_denoised) - lk(i) + 81),i) = sig_denoised((lk(i) - 80):length(sig_denoised));
         else
-            sample(:,i) = sig_denoise_paper((lk(i) - 80):(lk(i) + 169));
+            sample(:,i) = sig_denoised((lk(i) - 80):(lk(i) + 169));
         end
     end
 
@@ -121,7 +93,7 @@ function full_process(tm,sig,tm2,sig_denoise_paper)
         x1(i,:) = linspace(0,0.1,50);
         x2(i,:) = linspace(0.1,0.1+QT_interval_cor(i),200);
     end
-    
+
     %Concatinate x matrices and plot with scaled QT intervals
     x = horzcat(x1,x2)';
 
@@ -133,11 +105,10 @@ function full_process(tm,sig,tm2,sig_denoise_paper)
     end
 
     %% Removing columns that are outliers (she removed 4)
-    col_to_delete = 4; %number of columns to delete
-    
+    col_to_delete = int16(length(sample(1,:))*0.4); %number of columns to delete
+
     %delete last PQRST segment
-    %sample(:,24) = [];
-    sample(:,size(sample,2)-1) = [];
+    sample(:,length(sample(1,:))) = [];
     sample_mean_row = mean(sample,2); %taking mean of each row
 
     for k = 1:col_to_delete
@@ -154,7 +125,7 @@ function full_process(tm,sig,tm2,sig_denoise_paper)
         x(:,indices(1)) = [];
 
     end
-    figure;
-    plot(x,sample);
+%     figure;
+%     plot(x,sample);
 
 end
