@@ -1,5 +1,5 @@
 function full_process(tm,sig,tm2,sig_denoise_paper)
-
+    
     N = 9; 
     Fs = 500; 
     %% Baseline Removal through Polyfit
@@ -121,7 +121,7 @@ function full_process(tm,sig,tm2,sig_denoise_paper)
         x1(i,:) = linspace(0,0.1,50);
         x2(i,:) = linspace(0.1,0.1+QT_interval_cor(i),200);
     end
-
+    
     %Concatinate x matrices and plot with scaled QT intervals
     x = horzcat(x1,x2)';
 
@@ -134,9 +134,10 @@ function full_process(tm,sig,tm2,sig_denoise_paper)
 
     %% Removing columns that are outliers (she removed 4)
     col_to_delete = 4; %number of columns to delete
-
+    
     %delete last PQRST segment
-    sample(:,24) = [];
+    %sample(:,24) = [];
+    sample(:,size(sample,2)-1) = [];
     sample_mean_row = mean(sample,2); %taking mean of each row
 
     for k = 1:col_to_delete
@@ -157,4 +158,3 @@ function full_process(tm,sig,tm2,sig_denoise_paper)
     plot(x,sample);
 
 end
-    
