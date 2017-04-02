@@ -90,7 +90,7 @@ end
 
 
 %% Removing columns that are outliers (she removed 4)
-col_to_delete = 4; %number of columns to delete
+col_to_delete = 15; %number of columns to delete
 
 %delete last PQRST segment
 sample(:,24) = [];
@@ -106,8 +106,8 @@ for k = 1:col_to_delete
     end
     %find indicies with the greatest error and deleting it
     [aa,indices]=sort(error,'descend');
-    sample(:,indices(k)) = [];
-    x(:,indices(k)) = [];
+    sample(:,indices(1)) = [];
+    x(:,indices(1)) = [];
     
 end
 figure;
