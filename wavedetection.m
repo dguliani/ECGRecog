@@ -30,8 +30,8 @@ pk2 = sig_denoise_paper(in-30);
 % end
 
 %plot the Q peaks
-figure;
-plot(tm2, sig_denoise_paper, lk2, pk2, 'ro');
+% figure;
+% plot(tm2, sig_denoise_paper, lk2, pk2, 'ro');
 
 % chop the signal into samples
 sample = zeros(250,length(lk));
@@ -46,9 +46,9 @@ for i = 1:length(lk)
         sample(:,i) = sig_denoise_paper((lk(i) - 80):(lk(i) + 169));
     end
 end
-figure;
-x = linspace(0,0.5,250);
-plot(x, sample);
+% figure;
+% x = linspace(0,0.5,250);
+% plot(x, sample);
 
 %% Framingham formula
 %Put this before like Ning suggested
@@ -76,9 +76,9 @@ for i = 1:length(QT_interval_cor)
 end
 
 %Concatinate x matrices and plot with scaled QT intervals
-figure;
+%figure;
 x = horzcat(x1,x2)';
-plot(x,sample(:,1:end-1));
+%plot(x,sample(:,1:end-1));
 
 %% Removing the verticle shift
 %Find average of the columns and subract 
@@ -91,12 +91,15 @@ end
 
 %% Removing columns that are outliers (she removed 4)
 col_to_delete = 4; %number of columns to delete
+
+%delete last PQRST segment
+sample(:,24) = [];
 sample_mean_row = mean(sample,2); %taking mean of each row
 
 for k = 1:col_to_delete
     %finding the PQRST fragments that are the most wrong by adding the error
-    error = zeros(length(lk)+1-k,1);
-    for i = 1:(length(lk)+1-k)
+    error = zeros(length(lk)-k,1);
+    for i = 1:(length(lk)-k)
         for j = 1:length(sample)
             error(i) = abs(sample(j,i) - sample_mean_row(j)) + error(i);
         end
@@ -104,7 +107,9 @@ for k = 1:col_to_delete
     %find indicies with the greatest error and deleting it
     [aa,indices]=sort(error,'descend');
     sample(:,indices(k)) = [];
+    x(:,indices(k)) = [];
+    
 end
-%figure;
-%plot(sample);
+figure;
+plot(x,sample);
 
