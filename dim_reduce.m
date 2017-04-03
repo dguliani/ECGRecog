@@ -26,7 +26,7 @@ sigma = featureset * featureset' / size(featureset,2);
 xRot = U' * featureset;
 
 % reduce the dimensionality to dimensionality k
-k = 2;
+k = 30;
 xTilde = U(:,1:k)' * featureset;
 
 % get some colours for the 2D component scatter plot
@@ -40,5 +40,10 @@ newX = xTilde';
 % visualize. it still really doesn't look like hers though
 scatter(newX(:,1), newX(:,2), 20,[colours(:,1) colours(:,2) colours(:,3)]);
 
+figure; 
+subplot(2,1,1); 
+plot(featureset(:,1)); 
+subplot(2,1,2); 
+plot(xTilde(:,1)); 
 
 

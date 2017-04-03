@@ -19,10 +19,16 @@ Fs = 500;
 % sig2 = filtfilt(b_hp,a_hp,sig);
 
 % This one performed the best!
-opol = 12;
-[p,s,mu] = polyfit(tm,sig,opol);
-f_y = polyval(p,tm,[],mu);
-sig2 = sig - f_y;
+% opol = 12;
+% [p,s,mu] = polyfit(tm,sig,opol);
+% f_y = polyval(p,tm,[],mu);
+% sig2 = sig - f_y;
+
+% Wavelet Noise Removal
+[Lo_D,Hi_D,Lo_R,Hi_R] = wfilters('db8'); 
+[c,l] = wavedec(sig(:,1),9,Lo_D,Hi_D);
+sig2 = wrcoef('a',c,l,Lo_R,Hi_R,9);
+
 
 %% Adaptive Bandstop Filter as per Paper
 f0 = 50;                %#notch frequency

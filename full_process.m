@@ -2,10 +2,14 @@ function [x, sample] = full_process(tm,sig,tm2,sig_denoise_paper)
     N = 9; 
     Fs = 500; 
     %% Baseline Removal through Polyfit
-    [p,s,mu] = polyfit(tm,sig,12);
-    f_y = polyval(p,tm,[],mu);
-    sig2 = sig - f_y;
-
+%     [p,s,mu] = polyfit(tm,sig,12);
+%     f_y = polyval(p,tm,[],mu);
+%     sig2 = sig - f_y;
+    [Lo_D,Hi_D,Lo_R,Hi_R] = wfilters('db8'); 
+    [c,l] = wavedec(sig(:,1),9,Lo_D,Hi_D);
+    X = wrcoef('a',c,l,Lo_R,Hi_R,9);
+    sig2 = (sig(:,1)-X);
+    
     %% Adaptive Bandstop Filter as per Paper
     f0 = 50;                %#notch frequency
     fn = Fs/2;              %#Nyquist frequency
