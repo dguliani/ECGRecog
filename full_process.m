@@ -38,15 +38,32 @@ function [x, sample] = full_process(tm,sig,tm2,sig_denoise_paper)
     
     sig_denoised = sig5; 
 %     figure;
-%     ax1 = subplot(2,1,1); 
+%     ax1 = subplot(2,2,1); 
 %     plot(tm, sig); hold on; grid on;
-%     plot(tm, sig5); 
-%     ax2 = subplot(2,1,2);
-%     plot(tm, sig5, 'r'); hold on; grid on; 
-%     plot(tm2, sig_denoise_paper); 
+%     plot(tm, sig2); 
+%     legend('Raw Signal','Baseline Removed'); 
+%     title('Wavelet Baseline Removal', 'FontSize', 16); 
 %     
-%     linkaxes([ax1, ax2], 'x'); 
-%     legend('Our De-Noised',' Paper De-Noised'); 
+%     ax2 = subplot(2,2,2); 
+%     plot(tm, sig2); hold on; grid on;
+%     plot(tm, sig3); 
+%     legend('Signal','Line Noise Removed'); 
+%     title('Line Noise Removed Removal by Bandstop', 'FontSize', 16); 
+%     
+%     ax3 = subplot(2,2,3); 
+%     plot(tm, sig3); hold on; grid on;
+%     plot(tm, sig4); 
+%     legend('Signal','Lowpass Filter'); 
+%     title('High Frequency Noise Removal by Lowpass', 'FontSize', 16); 
+%     
+%     ax4 = subplot(2,2,4); 
+%     plot(tm, sig4); hold on; grid on;
+%     plot(tm, sig5); 
+%     legend('Signal','Smoothed'); 
+%     title('Smoothing', 'FontSize', 16); 
+%     
+%     linkaxes([ax1, ax2, ax3, ax4], 'x'); 
+   
     clear sig2 sig3 sig4 sig5
     %% Feature Space
     peak_threshold = max(sig_denoised)*0.65; 
