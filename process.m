@@ -30,7 +30,7 @@ Fs = 500;
 sig2 = wrcoef('a',c,l,Lo_R,Hi_R,9);
 
 
-%% Adaptive Bandstop Filter as per Paper
+%% Bandstop Filter as per Paper
 f0 = 50;                %#notch frequency
 fn = Fs/2;              %#Nyquist frequency
 freqRatio = f0/fn;      %#ratio of notch freq. to Nyquist freq.

@@ -9,7 +9,7 @@ featureset = dataset(:,2:size(dataset,2));
 % featureset = featureset';
 [coeff,score,latent,~,explained] = pca(featureset);
 s = cumsum(explained);
-num_components = length(find(s<99.999));
+num_components = 17; %length(find(s<99.999));
 
 featureset = score(:,1:num_components);
 

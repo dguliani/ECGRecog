@@ -10,7 +10,7 @@ function [x, sample] = full_process(tm,sig,tm2,sig_denoise_paper)
     X = wrcoef('a',c,l,Lo_R,Hi_R,9);
     sig2 = (sig(:,1)-X);
     
-    %% Adaptive Bandstop Filter as per Paper
+    %% Bandstop Filter as per Paper
     f0 = 50;                %#notch frequency
     fn = Fs/2;              %#Nyquist frequency
     freqRatio = f0/fn;      %#ratio of notch freq. to Nyquist freq.
@@ -117,7 +117,8 @@ function [x, sample] = full_process(tm,sig,tm2,sig_denoise_paper)
 
     %Concatinate x matrices and plot with scaled QT intervals
     x = horzcat(x1,x2)';
-
+%     figure;
+%     plot(sample);
     %% Removing the verticle shift
     %Find average of the columns and subract 
     sample_mean_col = mean(sample);
@@ -129,24 +130,21 @@ function [x, sample] = full_process(tm,sig,tm2,sig_denoise_paper)
     col_to_delete = int16(length(sample(1,:))*0.4); %number of columns to delete
 
     %delete last PQRST segment
-    sample(:,length(sample(1,:))) = [];
+    sample(:, end) = [];
     sample_mean_row = mean(sample,2); %taking mean of each row
-
-    for k = 1:col_to_delete
-        %finding the PQRST fragments that are the most wrong by adding the error
-        error = zeros(length(lk)-k,1);
-        for i = 1:(length(lk)-k)
-            for j = 1:length(sample)
-                error(i) = abs(sample(j,i) - sample_mean_row(j)) + error(i);
-            end
-        end
-        %find indicies with the greatest error and deleting it
-        [~,indices]=sort(error,'descend');
-        sample(:,indices(1)) = [];
-        x(:,indices(1)) = [];
-
+    
+    % Find Error (RMSE)
+    error = zeros(length(sample(1,:)),1);
+    for i = 1:length(sample(1,:))
+        RMSE = sqrt(mean((sample_mean_row - sample(:,i)).^2));
+        error(i) = RMSE; 
     end
+    % find indicies with the greatest error and deleting it
+    [~,indices]=sort(error,'descend');
+    sample(:,indices(1:col_to_delete)) = [];
+    x(:,indices(1:col_to_delete)) = [];
+    
 %     figure;
-%     plot(x,sample);
+%     plot(sample);
 
 end

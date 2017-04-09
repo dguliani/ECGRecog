@@ -50,10 +50,10 @@ estimate = score(:,1:k)*(coeffs(:,1:k)');
 % Y = tsne(chunks,'Algorithm','barneshut','NumPCAComponents',k);
 
 figure; 
-subplot(2,1,1); 
+% subplot(2,1,1); 
 plot(chunks.'); hold on; grid on; 
 title('Chunked features');
-subplot(2,1,2); 
-plot(estimate); hold on; grid on; 
+% subplot(2,1,2); 
+% plot(estimate); hold on; grid on; 
 
 hold on; grid on; 
